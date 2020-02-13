@@ -4,6 +4,7 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use cargo_lock::{package, Dependency, Lockfile, ResolveVersion};
+#[cfg(feature = "cli")]
 use gumdrop::Options;
 use std::{
     env, fs, io,
@@ -16,6 +17,7 @@ use cargo_lock::dependency::graph::EdgeDirection;
 
 /// Wrapper toplevel command for the `cargo lock` subcommand
 #[derive(Options)]
+#[cfg(feature = "cli")]
 enum CargoLock {
     #[options(help = "the `cargo lock` Cargo subcommand")]
     Lock(Command),
@@ -23,6 +25,7 @@ enum CargoLock {
 
 /// `cargo lock` subcommands
 #[derive(Debug, Options)]
+#[cfg(feature = "cli")]
 enum Command {
     /// The `cargo lock list` subcommand
     #[options(help = "list packages in Cargo.toml")]
@@ -40,12 +43,14 @@ enum Command {
 
 /// The `cargo lock list` subcommand
 #[derive(Debug, Options)]
+#[cfg(feature = "cli")]
 struct ListCmd {
     /// Input `Cargo.lock` file
     #[options(short = "f", help = "input Cargo.lock file to translate")]
     file: Option<PathBuf>,
 }
 
+#[cfg(feature = "cli")]
 impl ListCmd {
     /// Display dependency summary from `Cargo.lock`
     pub fn run(&self) {
@@ -57,6 +62,7 @@ impl ListCmd {
 
 /// The `cargo lock translate` subcommand
 #[derive(Debug, Options)]
+#[cfg(feature = "cli")]
 struct TranslateCmd {
     /// Input `Cargo.lock` file
     #[options(short = "f", help = "input Cargo.lock file to translate")]
@@ -71,6 +77,7 @@ struct TranslateCmd {
     version: Option<ResolveVersion>,
 }
 
+#[cfg(feature = "cli")]
 impl TranslateCmd {
     /// Translate `Cargo.lock` to a different format version
     pub fn run(&self) {
@@ -97,6 +104,7 @@ impl TranslateCmd {
 }
 
 /// The `cargo lock tree` subcommand
+#[cfg(feature = "cli")]
 #[cfg(feature = "dependency-tree")]
 #[derive(Debug, Options)]
 struct TreeCmd {
@@ -109,6 +117,7 @@ struct TreeCmd {
     dependencies: Vec<package::Name>,
 }
 
+#[cfg(feature = "cli")]
 #[cfg(feature = "dependency-tree")]
 impl TreeCmd {
     /// Display dependency trees from `Cargo.lock`
@@ -160,6 +169,7 @@ fn load_lockfile(path: &Option<PathBuf>) -> Lockfile {
     })
 }
 
+#[cfg(feature = "cli")]
 fn main() {
     let args = env::args().collect::<Vec<_>>();
 
@@ -176,4 +186,9 @@ fn main() {
         #[cfg(feature = "dependency-tree")]
         Command::Tree(tree) => tree.run(),
     }
+}
+
+#[cfg(not(feature = "cli"))]
+fn main() {
+    // intentionally empty
 }
